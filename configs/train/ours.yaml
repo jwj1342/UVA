@@ -1,0 +1,18 @@
+# OURS: mixed SFT on the replay-verified abstract pairs.
+# Question examples (h -> q+) plus solve-step examples from the same solved collection rollouts,
+# two solve steps per question (the mixing weight lambda realized as the example ratio).
+name: ours
+objective: sft
+data:
+  pairs: output/pairs/master_pairs.jsonl      # from scripts/build_pairs.sh (uva.data.pairs_master)
+  replay_gate: true
+  max_pairs: 300                               # null = every accepted pair
+  solve_per_question: 2.0
+  char_budget: 9000                            # prompt cap (characters); middle turns dropped beyond it
+train:
+  update_budget: 339                          # optimizer updates: 300 questions + 600 solve steps, batch 8, 3 epochs
+  learning_rate: 7.0e-5
+  max_length: 3072
+  gradient_accumulation_steps: 8
+  lora: {r: 16, alpha: 32, dropout: 0.05}      # on all linear projections of the nf4-quantized base
+seed: 42

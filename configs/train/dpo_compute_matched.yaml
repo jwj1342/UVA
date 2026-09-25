@@ -1,0 +1,17 @@
+# ABLATION "DPO", token-compute-matched variant: DPO runs a chosen and a rejected pass through both the
+# policy and the frozen reference (four sequence passes per example against one for SFT), so this recipe
+# gives it a quarter of the update budget of Ours.
+name: dpo_compute_matched
+objective: dpo
+data:
+  pairs: output/pairs/master_pairs.jsonl
+  max_pairs: 300
+  char_budget: 9000
+train:
+  update_budget: 85
+  learning_rate: 5.0e-6
+  beta: 0.1
+  max_length: 3072
+  max_prompt_length: 2816
+  lora: {r: 16, alpha: 32, dropout: 0.05}
+seed: 42

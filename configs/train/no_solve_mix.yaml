@@ -1,0 +1,18 @@
+# ABLATION "- solve mixture": question-only SFT on the same accepted pairs, no solve-step examples,
+# at the same update budget as Ours. Its dose (update_budget, learning_rate) is the one that best
+# preserves utility on the development pool; select it there before the final run.
+name: no_solve_mix
+objective: sft
+data:
+  pairs: output/pairs/master_pairs.jsonl
+  replay_gate: true
+  max_pairs: 300
+  solve_per_question: 0.0
+  char_budget: 9000
+train:
+  update_budget: 339                          # optimizer updates: 300 questions + 600 solve steps, batch 8, 3 epochs
+  learning_rate: 7.0e-5
+  max_length: 3072
+  gradient_accumulation_steps: 8
+  lora: {r: 16, alpha: 32, dropout: 0.05}      # on all linear projections of the nf4-quantized base
+seed: 42

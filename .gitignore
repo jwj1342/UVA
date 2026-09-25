@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+output/
+containers/
+data/pools/
+data/terminalbench2/
+models/
+*.sif
+*.log
+.env
+credentials*

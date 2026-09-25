@@ -1,0 +1,20 @@
+# ABLATION "Host-SFT": pseudonymization-SFT. The target q+ is the deterministic sanitizer's
+# output T(q-) instead of the teacher's abstract rewrite; everything else is the OURS recipe.
+# Build its pairs with `--target pseudonym` (scripts/build_pairs.sh TARGET=pseudonym), which runs the
+# same pre-replay checks (minus the placeholder clause of V, which T legitimately violates) and the
+# same replay gate, into a separate master set.
+name: host_sft
+objective: sft
+data:
+  pairs: output/pairs_pseudonym/master_pairs.jsonl
+  replay_gate: true
+  max_pairs: 300
+  solve_per_question: 2.0
+  char_budget: 9000
+train:
+  update_budget: 339                          # optimizer updates: 300 questions + 600 solve steps, batch 8, 3 epochs
+  learning_rate: 7.0e-5
+  max_length: 3072
+  gradient_accumulation_steps: 8
+  lora: {r: 16, alpha: 32, dropout: 0.05}      # on all linear projections of the nf4-quantized base
+seed: 42

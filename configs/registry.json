@@ -1,0 +1,10 @@
+{
+  "hosted_vllm/Qwen3.5-9B": {
+    "max_tokens": 262144,
+    "input_cost_per_token": 0.0,
+    "output_cost_per_token": 0.0,
+    "litellm_provider": "hosted_vllm",
+    "mode": "chat",
+    "supports_function_calling": true
+  }
+}

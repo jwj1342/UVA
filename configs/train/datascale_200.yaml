@@ -1,0 +1,17 @@
+# DATA-SCALE grid: the OURS recipe on the first 200 accepted pairs of the master set
+# (nested budgets 100 / 200 / 300 / 400; mixture ratio and epochs fixed at the full-budget values).
+name: datascale_200
+objective: sft
+data:
+  pairs: output/pairs/master_pairs.jsonl
+  replay_gate: true
+  max_pairs: 200
+  solve_per_question: 2.0
+  char_budget: 9000
+train:
+  update_budget: 339                          # optimizer updates: 300 questions + 600 solve steps, batch 8, 3 epochs
+  learning_rate: 7.0e-5
+  max_length: 3072
+  gradient_accumulation_steps: 8
+  lora: {r: 16, alpha: 32, dropout: 0.05}      # on all linear projections of the nf4-quantized base
+seed: 42

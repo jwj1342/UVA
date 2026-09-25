@@ -1,0 +1,5 @@
+# Serving the student. vLLM 0.17.1 pins transformers 4.57.x; keep it in a separate environment
+# from requirements-train.txt.
+vllm==0.17.1
+transformers==4.57.6
+torch==2.10.0

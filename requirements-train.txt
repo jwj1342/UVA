@@ -1,0 +1,15 @@
+# Training (LoRA SFT / DPO, merge, graft). Qwen3.5 needs transformers 5.x.
+torch==2.10.0
+transformers==5.9.0
+accelerate==1.13.0
+peft==0.19.1
+bitsandbytes==0.49.2
+safetensors==0.7.0
+trl==1.7.1
+datasets==4.8.4
+# fast path for Qwen3.5's linear-attention layers (optional; the torch fallback is very slow)
+flash-linear-attention==0.5.2
+fla-core==0.5.2
+causal-conv1d==1.6.2.post1
+einops
+triton==3.6.0

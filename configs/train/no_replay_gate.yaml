@@ -1,0 +1,19 @@
+# ABLATION "- replay gate": the same original candidate pool, but every rewrite that passed
+# the pre-replay checks (privacy predicate, strict reduction, validity) is trained on regardless of
+# its replay verdict. Point `pairs` at the concatenated *_candidates.jsonl files of the batches that
+# fed master_pairs.jsonl (their replay status is ignored).
+name: no_replay_gate
+objective: sft
+data:
+  pairs: output/pairs/all_candidates.jsonl
+  replay_gate: false
+  max_pairs: 300
+  solve_per_question: 2.0
+  char_budget: 9000
+train:
+  update_budget: 339                          # optimizer updates: 300 questions + 600 solve steps, batch 8, 3 epochs
+  learning_rate: 7.0e-5
+  max_length: 3072
+  gradient_accumulation_steps: 8
+  lora: {r: 16, alpha: 32, dropout: 0.05}      # on all linear projections of the nf4-quantized base
+seed: 42

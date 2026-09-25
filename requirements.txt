@@ -1,0 +1,9 @@
+# Rollouts, data construction, scoring (Python >= 3.10). Versions are the ones the runs used.
+mini-swe-agent==2.2.8
+litellm==1.83.0
+openai==2.24.0
+pydantic==2.12.5
+pyyaml
+jinja2
+datasets==4.8.4
+-e .

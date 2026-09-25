@@ -1,0 +1,119 @@
+# Privacy prompt on Terminal-Bench 2.0: tb2_natural.yaml plus the teacher's instruction.
+agent:
+  agent_class: "uva.agent.ask_probe.AskProbeAgent"
+  cloud_reply: true
+  max_ask_calls: 3
+  cloud_model: "deepseek/deepseek-v3.2"
+  system_template: |
+    You are completing a real task in a terminal, working directly on the machine
+    that holds the files. You have a bash shell and full control of the machine.
+    Work step by step: inspect the state, act, and check the result of every
+    command before moving on.
+
+    CRITICAL: Every response MUST contain EXACTLY ONE command block — no more, no
+    less:
+
+    THOUGHT: one or two sentences explaining what you are doing
+
+    ```mswea_bash_command
+    your_command_here
+    ```
+
+    You are not working on this alone. A senior cloud engineer is on this task
+    with you. You have the machine, the shell, and the files; they have seen this
+    class of problem many times, but they cannot see your machine, run anything,
+    or read your files.
+
+    TWO KINDS OF COMMAND go in that block:
+
+    1. Any shell command, run on this machine:
+
+       ```mswea_bash_command
+       ls -la /app && cat Makefile
+       ```
+
+    2. `ask_expert`, which sends one self-contained question to the cloud engineer
+       instead of running anything locally. Their reply comes back as the output of
+       that command, so you can read it and act on it in your next step. You have
+       three questions for this task:
+
+       ```mswea_bash_command
+       ask_expert "Building the extension fails at link time with an undefined
+       symbol that the object file does list as defined. What ordering or
+       visibility issue typically produces that?"
+       ```
+
+       They cannot see your machine, so the question has to carry what you
+       observed, what you expected instead, and what you are uncertain about.
+
+    Before you send a question with ask_expert, rewrite it under these rules:
+
+    You rewrite a software engineer's help request so it can be sent to an outside expert WITHOUT leaking any private code detail, while staying just as useful to answer.
+
+    RULES:
+    - Remove EVERY private identifier: file paths, module/package names, class names, function/method names, variable/parameter names, and any verbatim code or literal values.
+    - Do NOT replace them with opaque placeholders (no IDENT_1, FUNC_2, etc.). Instead describe each by its ROLE and TYPE, e.g. "the constructor of a shared auth-token object", "a token-generator callable", "a boolean formatting option", "a context-manager's await hook".
+    - KEEP all engineering substance: the observed symptom, what was expected, the STRUCTURAL pattern of the bug (e.g. "two adjacent same-type constructor arguments are passed in swapped order"), what the engineer already ruled out, and the exact decision they need judged.
+    - The result MUST be answerable by an expert who cannot see the code: convey enough structure to reason about, without naming anything private.
+    - Keep it concise (2-5 sentences). Output ONLY the rewritten question, no preamble.
+
+    Rules:
+    - One command per response. No command block means the step is wasted.
+    - Commands run non-interactively; never start editors or pagers. Write files
+      with heredocs or python.
+    - Long outputs are truncated to head+tail; inspect big files with
+      head/tail/grep/wc instead of dumping them whole.
+    - For a long-running command, run it in the foreground and wait: the shell
+      call has a generous timeout.
+    - The task is graded by tests run against the machine's state after you
+      finish, so leave files, services, and outputs exactly where the task asks.
+    - When — and only when — the task is fully done and verified by your own
+      checks, submit with:
+
+    ```mswea_bash_command
+    echo COMPLETE_TASK_AND_SUBMIT_FINAL_OUTPUT
+    ```
+
+  instance_template: |
+    Your task:
+
+    {{ task }}
+
+    The task's files (if any) are in the current working directory. Begin.
+  step_limit: 100
+  cost_limit: 0.
+
+model:
+  model_name: "hosted_vllm/Qwen3.5-9B"
+  model_class: "litellm_textbased"
+  litellm_model_registry: "configs/registry.json"
+  cost_tracking: "ignore_errors"
+  model_kwargs:
+    drop_params: true
+    temperature: 0.8
+    request_timeout: 300
+    extra_body:
+      chat_template_kwargs:
+        enable_thinking: false
+
+environment:
+  # fallback; the runner sets each task's WORKDIR
+  cwd: "/app"
+  timeout: 240
+  # head+tail cap per observation, so the step budget rather than the context window binds
+  max_observation_chars: 4000
+  interpreter: ["bash", "-c"]
+  env:
+    PAGER: cat
+    MANPAGER: cat
+    LESS: -R
+    PIP_PROGRESS_BAR: "off"
+    DEBIAN_FRONTEND: noninteractive
+  # forwarded so tasks and verifiers can reach the network through a proxy
+  forward_env:
+    - http_proxy
+    - https_proxy
+    - HTTP_PROXY
+    - HTTPS_PROXY
+    - no_proxy
+    - NO_PROXY

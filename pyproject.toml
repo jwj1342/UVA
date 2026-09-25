@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uva"
+version = "0.1.0"
+description = "Utility-Verified Abstraction: learning to consult a cloud expert without leaking repository content"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = [
+    "mini-swe-agent==2.2.8",
+    "pyyaml",
+    "jinja2",
+    "pydantic>=2",
+    "litellm>=1.75.5,!=1.82.7,!=1.82.8",
+    "datasets",
+]
+
+[tool.setuptools.packages.find]
+include = ["uva*"]
+
+[tool.setuptools.package-data]
+uva = ["privacy/english_words_min8.txt", "eval/terminalbench/*.tsv", "eval/terminalbench/*.sh"]
